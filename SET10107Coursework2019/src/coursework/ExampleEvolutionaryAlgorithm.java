@@ -42,7 +42,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 			 * 
 			 */
 
-			// Select 2 Individuals from the current population. Currently returns random Individual
+			// Select 2 Individuals from the current population.
 			Individual parent1 = select(); 
 			Individual parent2 = select();
 			while(parent2 == parent1){
@@ -50,8 +50,8 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 				System.out.println("Same parents");
 			}
 
-			// Generate a child by crossover. Not Implemented			
-			ArrayList<Individual> children = reproduce(parent1, parent2);			
+			// Generate a child by crossover.		
+			ArrayList<Individual> children = reproduce(parent1, parent2, 2);			
 			
 			//mutate the offspring
 			mutate(children);
@@ -157,7 +157,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	//Tournament to pick the best from a random selection of size == tournamentSize
 	private Individual tournament(int tournamentSize){
 		ArrayList<Individual> selection = new ArrayList<Individual>();
-		for(int i = 0; i <= tournamentSize; i++){
+		for(int i = 0; i < tournamentSize; i++){
 			selection.add(population.get(Parameters.random.nextInt(Parameters.popSize)));
 		}
 		return getBestFromSelection(selection);
@@ -169,10 +169,24 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	 * NEEDS REPLACED with proper method this code just returns exact copies of the
 	 * parents. 
 	 */
-	private ArrayList<Individual> reproduce(Individual parent1, Individual parent2) {
+	private ArrayList<Individual> reproduce(Individual parent1, Individual parent2, int numOfChildren) {
 		ArrayList<Individual> children = new ArrayList<>();
-		children.add(parent1.copy());
-		children.add(parent2.copy());
+		Random rand = new Random();
+		
+		for(int childCount = 0; childCount < numOfChildren; childCount++){
+			Individual newChild = new Individual();
+			for (int i = 0; i < parent1.chromosome.length; i++) {				
+				// Either add or take away the chromosome values
+				int chance = rand.nextInt(1);
+				if(chance == 0){
+					newChild.chromosome[i] = parent1.chromosome[i] + parent2.chromosome[i];
+				}
+				else{
+					newChild.chromosome[i] = parent1.chromosome[i] - parent2.chromosome[i];
+				}
+			}
+			children.add(newChild);
+		}
 		return children;
 	} 
 	
