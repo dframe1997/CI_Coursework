@@ -175,14 +175,24 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		
 		for(int childCount = 0; childCount < numOfChildren; childCount++){
 			Individual newChild = new Individual();
+			double crossoverPoint = Math.floor(parent1.chromosome.length/2);
 			for (int i = 0; i < parent1.chromosome.length; i++) {				
 				// Either add or take away the chromosome values
-				int chance = rand.nextInt(1);
+				/*int chance = rand.nextInt(1);
 				if(chance == 0){
 					newChild.chromosome[i] = parent1.chromosome[i] + parent2.chromosome[i];
 				}
 				else{
 					newChild.chromosome[i] = parent1.chromosome[i] - parent2.chromosome[i];
+				}*/
+				
+				//Largest chromosome
+				//Single point crossover
+				if(i >= crossoverPoint){
+					newChild.chromosome[i] = parent1.chromosome[i];
+				}
+				else{
+					newChild.chromosome[i] = parent2.chromosome[i];
 				}
 			}
 			children.add(newChild);
