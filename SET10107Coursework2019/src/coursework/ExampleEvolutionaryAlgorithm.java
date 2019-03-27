@@ -51,7 +51,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 			}
 
 			// Generate a child by crossover.		
-			ArrayList<Individual> children = reproduce(parent1, parent2, 2);			
+			ArrayList<Individual> children = reproduce(parent1, parent2, 1);			
 			
 			//mutate the offspring
 			mutate(children);
@@ -163,7 +163,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		//Tournament
 		
 
-		Individual tournamentWinner = tournament(3);
+		Individual tournamentWinner = tournament(8);
 		
 		//Individual parent = population.get(Parameters.random.nextInt(Parameters.popSize));
 		return tournamentWinner.copy();
@@ -224,9 +224,9 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		for(Individual individual : individuals) {
 			for (int i = 0; i < individual.chromosome.length; i++) {
 				if (Parameters.random.nextDouble() < Parameters.mutateRate) {
-					if (Parameters.random.nextBoolean()) {
+					if (Parameters.random.nextBoolean() && individual.chromosome[i] + (Parameters.mutateChange) <= Parameters.maxGene) {
 						individual.chromosome[i] += (Parameters.mutateChange);
-					} else {
+					} else if (individual.chromosome[i] + (Parameters.mutateChange) >= Parameters.minGene) {
 						individual.chromosome[i] -= (Parameters.mutateChange);
 					}
 				}
@@ -242,20 +242,11 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	 */
 	private void replace(ArrayList<Individual> children) {
 		for(Individual child : children) {
-			int idx = 0;
-			
-			//99% chance to replace the worst one, 1% chance of replacing a random one
-			Random rand = new Random();
-			// Obtain a number between [0 - 100].
-			int chance = rand.nextInt(100);
-			
-			//if(chance <= 99){
-				idx = getWorstIndex();
-			/*}
-			else{
-				idx = Parameters.random.nextInt(Parameters.popSize);
-			}*/
-			population.set(idx, child);
+			int index = getWorstIndex();
+			Individual deadManStanding = population.get(index);
+			//if(deadManStanding.fitness > child.fitness) {
+				population.set(index, child);
+			//}	
 		}		
 	}
 
