@@ -67,7 +67,12 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 			
 			// Implemented in NN class. 
 			outputStats();
-			
+			double totalFitness = 0;
+			for(Individual person: population) {
+				totalFitness += person.fitness;
+			}
+			double average = totalFitness/Parameters.popSize;
+			System.out.println("Average fitness: " + average);
 			//Increment number of completed generations			
 		}
 
@@ -109,13 +114,23 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	 * 
 	 */
 	private Individual getBestFromSelection(ArrayList<Individual> selection) {
-		best = null;;
-		for (Individual individual : selection) {
-			if (best == null) {
-				best = individual.copy();
-			} else if (individual.fitness < best.fitness) {
-				best = individual.copy();
+		best = null;
+		//99% chance to replace the worst one, 1% chance of replacing a random one
+		Random rand = new Random();
+		// Obtain a number between [0 - 100].
+		int chance = rand.nextInt(100);
+		
+		if(chance <= 80){
+			for (Individual individual : selection) {
+				if (best == null) {
+					best = individual.copy();
+				} else if (individual.fitness < best.fitness) {
+					best = individual.copy();
+				}
 			}
+		}
+		else {
+			best = selection.get(rand.nextInt(selection.size()));
 		}
 		return best;
 	}
@@ -138,8 +153,8 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	/**
 	 * Selection --
 	 * 
-	 * NEEDS REPLACED with proper selection this just returns a copy of a random
-	 * member of the population
+	 * EDITED
+	 * 
 	 */
 	private Individual select() {	
 		//Occasionally pick random to allow escape from local maximum
@@ -166,8 +181,8 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	/**
 	 * Crossover / Reproduction
 	 * 
-	 * NEEDS REPLACED with proper method this code just returns exact copies of the
-	 * parents. 
+	 * EDITED
+	 * 
 	 */
 	private ArrayList<Individual> reproduce(Individual parent1, Individual parent2, int numOfChildren) {
 		ArrayList<Individual> children = new ArrayList<>();
@@ -234,12 +249,12 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 			// Obtain a number between [0 - 100].
 			int chance = rand.nextInt(100);
 			
-			if(chance <= 99){
+			//if(chance <= 99){
 				idx = getWorstIndex();
-			}
+			/*}
 			else{
 				idx = Parameters.random.nextInt(Parameters.popSize);
-			}
+			}*/
 			population.set(idx, child);
 		}		
 	}
