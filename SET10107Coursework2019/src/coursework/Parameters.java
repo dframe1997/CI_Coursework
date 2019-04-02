@@ -17,15 +17,16 @@ public class Parameters {
 	private static int numGenes = calculateNumGenes();
 	public static double minGene = -1; // specifies minimum and maximum weight values 
 	public static double maxGene = +1;
-		
-	public static int popSize = 60;
+	
+
+	public static int popSize = 60; 
 	public static int maxEvaluations = 20000;
 	
 	// Parameters for mutation 
 	// Rate = probability of changing a gene
 	// Change = the maximum +/- adjustment to the gene value
-	public static double mutateRate = 0.5; // mutation rate for mutation operator
-	public static double mutateChange = 0.2; // delta change for mutation operator
+	public static double mutateRate = 0.05; // mutation rate for mutation operator //Typically between 1/pop_size and 1/ chromosome_length
+	public static double mutateChange = 0.08; // delta change for mutation operator
 	
 	//Random number generator used throughout the application
 	public static long seed = System.currentTimeMillis();

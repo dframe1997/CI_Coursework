@@ -1,6 +1,7 @@
 package coursework;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 import model.Fitness;
@@ -42,16 +43,27 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 			 * 
 			 */
 
-			// Select 2 Individuals from the current population.
-			Individual parent1 = select(); 
-			Individual parent2 = select();
-			while(parent2 == parent1){
-				parent2 = select();
-				System.out.println("Same parents");
+			// Select parents from the current population.
+			ArrayList<Individual> parents = new ArrayList<Individual>();
+			int parentNum = 3;
+			int replacements = 10; //The number of bad ones to replace
+			for(int i = 0; i < parentNum; i++) {
+				Individual newParent = select();
+				/*boolean duplicate = false;
+				do {
+					duplicate = false;
+					for(Individual parent : parents) {
+						if(newParent.fitness == parent.fitness) {
+							duplicate = true;
+							newParent = select();
+						}
+					}
+				} while(duplicate);*/
+				parents.add(newParent);
 			}
-
+			
 			// Generate a child by crossover.		
-			ArrayList<Individual> children = reproduce(parent1, parent2, 1);			
+			ArrayList<Individual> children = reproduce(parents, replacements);			
 			
 			//mutate the offspring
 			mutate(children);
@@ -130,7 +142,8 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 			}
 		}
 		else {
-			best = selection.get(rand.nextInt(selection.size()));
+			//best = selection.get(rand.nextInt(selection.size()));
+			best = getBest();
 		}
 		return best;
 	}
@@ -161,9 +174,9 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		//Another Option: Roulette Wheel - dosen't work for negative fitness
 		
 		//Tournament
-		
+		//Have to be in the top 75%
 
-		Individual tournamentWinner = tournament(8);
+		Individual tournamentWinner = tournament(6);
 		
 		//Individual parent = population.get(Parameters.random.nextInt(Parameters.popSize));
 		return tournamentWinner.copy();
@@ -172,8 +185,17 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	//Tournament to pick the best from a random selection of size == tournamentSize
 	private Individual tournament(int tournamentSize){
 		ArrayList<Individual> selection = new ArrayList<Individual>();
+		Random rand = new Random();
 		for(int i = 0; i < tournamentSize; i++){
-			selection.add(population.get(Parameters.random.nextInt(Parameters.popSize)));
+			Individual newPerson = population.get(Parameters.random.nextInt(Parameters.popSize));
+			Collections.sort(population, fitness);
+			int splitIndex = Parameters.popSize/4;
+			int chance = rand.nextInt(1);
+			while(chance == 0 && newPerson.fitness > population.get(splitIndex))
+			{
+				newPerson = population.get(Parameters.random.nextInt(Parameters.popSize));
+			}
+			selection.add(newPerson);
 		}
 		return getBestFromSelection(selection);
 	}
@@ -184,14 +206,25 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	 * EDITED
 	 * 
 	 */
-	private ArrayList<Individual> reproduce(Individual parent1, Individual parent2, int numOfChildren) {
+	private ArrayList<Individual> reproduce(ArrayList<Individual> parents, int numOfChildren) {
 		ArrayList<Individual> children = new ArrayList<>();
 		Random rand = new Random();
 		
 		for(int childCount = 0; childCount < numOfChildren; childCount++){
 			Individual newChild = new Individual();
-			double crossoverPoint = Math.floor(parent1.chromosome.length/2);
-			for (int i = 0; i < parent1.chromosome.length; i++) {				
+			
+			ArrayList<Double> crossoverPoints = new ArrayList<Double>();
+			
+			if(parents.size() >= 2) {
+				//Generate crossover points
+				int numCrossoverPoints = parents.size() - 1;
+				double crossoverInterval = Math.floor(parents.get(0).chromosome.length/numCrossoverPoints);
+				for(int i = 1; i <= numCrossoverPoints; i++) {
+					crossoverPoints.add(crossoverInterval*i);
+				}
+			}
+			
+			for (int i = 0; i < parents.get(0).chromosome.length; i++) {				
 				// Either add or take away the chromosome values
 				/*int chance = rand.nextInt(1);
 				if(chance == 0){
@@ -203,11 +236,21 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 				
 				//Largest chromosome
 				//Single point crossover
-				if(i >= crossoverPoint){
-					newChild.chromosome[i] = parent1.chromosome[i];
-				}
-				else{
-					newChild.chromosome[i] = parent2.chromosome[i];
+				for(int j = 0; j < crossoverPoints.size(); j++) {
+					if(j == 0) {
+						if(i <= crossoverPoints.get(j)){
+							newChild.chromosome[i] = parents.get(j).chromosome[i];
+						}
+					}
+					else if(j < crossoverPoints.size()-1) {
+						if(i <= crossoverPoints.get(j) && i > crossoverPoints.get(j-1)){
+							newChild.chromosome[i] = parents.get(j).chromosome[i];
+						}
+					}
+					
+					else if (i > crossoverPoints.get(j)){
+						newChild.chromosome[i] = parents.get(j).chromosome[i];
+					}
 				}
 			}
 			children.add(newChild);
@@ -244,9 +287,9 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		for(Individual child : children) {
 			int index = getWorstIndex();
 			Individual deadManStanding = population.get(index);
-			//if(deadManStanding.fitness > child.fitness) {
+			if(deadManStanding.fitness > child.fitness) {
 				population.set(index, child);
-			//}	
+			}	
 		}		
 	}
 
