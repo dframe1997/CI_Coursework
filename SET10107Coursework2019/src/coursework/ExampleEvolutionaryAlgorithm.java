@@ -1,6 +1,7 @@
 package coursework;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
@@ -45,25 +46,26 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 
 			// Select parents from the current population.
 			ArrayList<Individual> parents = new ArrayList<Individual>();
-			int parentNum = 3;
-			int replacements = 10; //The number of bad ones to replace
+			int parentNum = 2;
+			int replacements = 1; //The number of bad ones to replace
 			for(int i = 0; i < parentNum; i++) {
 				Individual newParent = select();
-				/*boolean duplicate = false;
+				boolean duplicate = false;
 				do {
 					duplicate = false;
 					for(Individual parent : parents) {
-						if(newParent.fitness == parent.fitness) {
+						if(Arrays.equals(newParent.chromosome,parent.chromosome)) {
 							duplicate = true;
 							newParent = select();
 						}
 					}
-				} while(duplicate);*/
+				} while(duplicate);
 				parents.add(newParent);
 			}
 			
 			// Generate a child by crossover.		
-			ArrayList<Individual> children = reproduce(parents, replacements);			
+			ArrayList<Individual> children = reproduce(parents, replacements);		
+			children.add(population.get(getWorstIndex()).copy());
 			
 			//mutate the offspring
 			mutate(children);
@@ -73,6 +75,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 
 			// Replace old individuals in population with new children
 			replace(children);
+			
 
 			// check to see if the best has improved
 			best = getBest();
@@ -142,8 +145,8 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 			}
 		}
 		else {
-			//best = selection.get(rand.nextInt(selection.size()));
-			best = getBest();
+			best = selection.get(rand.nextInt(selection.size()));
+			//best = getBest();
 		}
 		return best;
 	}
@@ -176,7 +179,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		//Tournament
 		//Have to be in the top 75%
 
-		Individual tournamentWinner = tournament(6);
+		Individual tournamentWinner = tournament(8);
 		
 		//Individual parent = population.get(Parameters.random.nextInt(Parameters.popSize));
 		return tournamentWinner.copy();
@@ -188,10 +191,13 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		Random rand = new Random();
 		for(int i = 0; i < tournamentSize; i++){
 			Individual newPerson = population.get(Parameters.random.nextInt(Parameters.popSize));
-			Collections.sort(population, fitness);
+			
+			
+			Collections.sort(population, Collections.reverseOrder());
+			
 			int splitIndex = Parameters.popSize/4;
-			int chance = rand.nextInt(1);
-			while(chance == 0 && newPerson.fitness > population.get(splitIndex))
+			//int chance = rand.nextInt(1);
+			while(newPerson.fitness > population.get(splitIndex).fitness)
 			{
 				newPerson = population.get(Parameters.random.nextInt(Parameters.popSize));
 			}
