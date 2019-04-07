@@ -25,7 +25,7 @@ public class Parameters {
 	// Parameters for mutation 
 	// Rate = probability of changing a gene
 	// Change = the maximum +/- adjustment to the gene value
-	public static double mutateRate = 0.2; // mutation rate for mutation operator
+	public static double mutateRate = 0.3; // mutation rate for mutation operator
 	public static double mutateChange = 0.2; // delta change for mutation operator
 	
 	//Random number generator used throughout the application
