@@ -68,13 +68,19 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 			children.add(population.get(getWorstIndex()).copy());
 			
 			//mutate the offspring
-			mutate(children);
+			mutate(children, false);
+			
+			ArrayList<Individual> worst = new ArrayList<Individual>();
+			worst.add(population.get(getWorstIndex()).copy());
+			mutate(worst, true);
 			
 			// Evaluate the children
-			evaluateIndividuals(children);			
+			evaluateIndividuals(children);
+			evaluateIndividuals(worst);
 
 			// Replace old individuals in population with new children
 			replace(children);
+			replace(worst);
 			
 
 			// check to see if the best has improved
@@ -269,10 +275,10 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	 * 
 	 * 
 	 */
-	private void mutate(ArrayList<Individual> individuals) {		
+	private void mutate(ArrayList<Individual> individuals, boolean alwaysMutate) {		
 		for(Individual individual : individuals) {
 			for (int i = 0; i < individual.chromosome.length; i++) {
-				if (Parameters.random.nextDouble() < Parameters.mutateRate) {
+				if (Parameters.random.nextDouble() < Parameters.mutateRate || alwaysMutate == true) {
 					if (Parameters.random.nextBoolean() && individual.chromosome[i] + (Parameters.mutateChange) <= Parameters.maxGene) {
 						individual.chromosome[i] += (Parameters.mutateChange);
 					} else if (individual.chromosome[i] + (Parameters.mutateChange) >= Parameters.minGene) {
